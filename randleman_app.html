@@ -1,0 +1,154 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Randleman-Kriterium</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        .container {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+        }
+        h1 {
+            text-align: center;
+            color: #4CAF50;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+        input, button, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .low-risk { background-color: #d4edda; color: #155724; }
+        .medium-risk { background-color: #fff3cd; color: #856404; }
+        .high-risk { background-color: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Randleman-Kriterium</h1>
+        <form id="randlemanForm">
+            <label for="cct">Zentrale Hornhautdicke (CCT in µm):</label>
+            <input type="number" id="cct" required>
+
+            <label for="rsb">Belassene Hornhautdicke (RSB in µm):</label>
+            <input type="number" id="rsb" required>
+
+            <label for="age">Alter (in Jahren):</label>
+            <input type="number" id="age" required>
+
+            <label for="refractiveError">Refraktive Korrektur (in Dioptrien):</label>
+            <input type="number" step="0.01" id="refractiveError" required>
+
+            <label for="keratoconus">Keratokonusverdacht:</label>
+            <select id="keratoconus">
+                <option value="no">Nein</option>
+                <option value="yes">Ja</option>
+            </select>
+
+            <button type="button" onclick="calculateScore()">Berechnung starten</button>
+        </form>
+
+        <div id="result" class="result" style="display: none;"></div>
+    </div>
+
+    <script>
+        function calculateScore() {
+            // Eingaben aus dem Formular abrufen
+            let cct = parseInt(document.getElementById("cct").value);
+            let rsb = parseInt(document.getElementById("rsb").value);
+            let age = parseInt(document.getElementById("age").value);
+            let refractiveError = parseFloat(document.getElementById("refractiveError").value);
+            let keratoconus = document.getElementById("keratoconus").value;
+
+            // Überprüfen, ob alle Felder korrekt ausgefüllt sind
+            if (isNaN(cct) || isNaN(rsb) || isNaN(age) || isNaN(refractiveError)) {
+                alert("Bitte füllen Sie alle Felder korrekt aus.");
+                return;
+            }
+
+            // Score initialisieren
+            let score = 0;
+
+            // Punkte für Keratokonusverdacht
+            if (keratoconus === "yes") score += 2;
+
+            // Punkte für zentrale Hornhautdicke (CCT)
+            if (cct < 490) {
+                score += 2;
+            } else if (cct <= 509) {
+                score += 1;
+            }
+
+            // Punkte für belassene Hornhautdicke (RSB)
+            if (rsb < 250) {
+                score += 2;
+            } else if (rsb <= 299) {
+                score += 1;
+            }
+
+            // Punkte für Alter
+            if (age < 25) {
+                score += 2;
+            } else if (age < 30) {
+                score += 1;
+            }
+
+            // Punkte für refraktive Korrektur
+            if (refractiveError < -10) {
+                score += 2;
+            } else if (refractiveError <= -8) {
+                score += 1;
+            }
+
+            // Ergebnis anzeigen
+            let resultDiv = document.getElementById("result");
+            resultDiv.style.display = "block";
+
+            if (score <= 2) {
+                resultDiv.innerHTML = `Randleman-Score: ${score}<br>Risikostufe: <strong>Gering</strong>`;
+                resultDiv.className = "result low-risk";
+            } else if (score <= 4) {
+                resultDiv.innerHTML = `Randleman-Score: ${score}<br>Risikostufe: <strong>Mittel</strong>`;
+                resultDiv.className = "result medium-risk";
+            } else {
+                resultDiv.innerHTML = `Randleman-Score: ${score}<br>Risikostufe: <strong>Hoch</strong>`;
+                resultDiv.className = "result high-risk";
+            }
+        }
+    </script>
+</body>
+</html>
